@@ -3,16 +3,11 @@ import blessed from 'blessed';
 import XTerm from 'blessed-xterm';
 
 import { layoutsByPaneCount } from './support/layouts';
+import { parseArgs } from './support/parseArgs';
 
 const isMac = os.platform() === 'darwin';
 
 const altKey = isMac ? 'opt' : 'alt';
-
-type Cmd = {
-  title: string;
-  npmScript: string;
-  initiallyVisible: boolean;
-};
 
 type KeypressHandler<HandlerArgs extends Array<unknown>> = {
   keys: Array<string>;
@@ -20,24 +15,7 @@ type KeypressHandler<HandlerArgs extends Array<unknown>> = {
   passThrough: boolean;
 };
 
-const commands: Array<Cmd> = [];
-const args = process.argv.slice(2);
-for (let arg of args) {
-  const isHidden = arg.endsWith('!');
-  if (isHidden) {
-    arg = arg.slice(0, -1);
-  }
-  let title = '';
-  const npmScript = arg.replace(/\[(.*?)\]$/, (_, str) => {
-    title = str;
-    return '';
-  });
-  commands.push({
-    title: title || npmScript,
-    npmScript,
-    initiallyVisible: !isHidden,
-  });
-}
+const commands = parseArgs(process.argv.slice(2));
 
 if (commands.length === 0) {
   // TODO: Display usage
