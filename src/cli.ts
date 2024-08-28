@@ -36,17 +36,6 @@ const state = {
   shuttingDown: false,
 };
 
-const getHeaderText = () => {
-  return commands
-    .map(({ title }, index) => {
-      const tabName = `(${index + 1}) ${title}`;
-      const isToggled = state.shownTerminalIndexes.has(index);
-      const style = isToggled ? `{white-fg}{underline}` : `{gray-fg}`;
-      return `${style}${tabName}{/}`;
-    })
-    .join(' | ');
-};
-
 const screen = blessed.screen({
   title: 'Dev Server',
   smartCSR: true,
@@ -304,7 +293,20 @@ screen.key(['C-q'], () => {
   exit(0);
 });
 
-const incFocusedTerminal = (num: number) => {
+updateLayoutAndRender();
+
+function getHeaderText() {
+  return commands
+    .map(({ title }, index) => {
+      const tabName = `(${index + 1}) ${title}`;
+      const isToggled = state.shownTerminalIndexes.has(index);
+      const style = isToggled ? `{white-fg}{underline}` : `{gray-fg}`;
+      return `${style}${tabName}{/}`;
+    })
+    .join(' | ');
+}
+
+function incFocusedTerminal(num: number) {
   const focusedTerminal = terminals[state.focusedIndex];
   if (!focusedTerminal) {
     return;
@@ -324,14 +326,14 @@ const incFocusedTerminal = (num: number) => {
     return;
   }
   state.focusedIndex = terminals.indexOf(shownTerminal);
-};
+}
 
-const exit = (status: number) => {
+function exit(status: number) {
   screen.destroy();
   process.exit(status);
-};
+}
 
-const updateLayoutAndRender = () => {
+function updateLayoutAndRender() {
   for (const terminal of terminals) {
     terminal.hide();
   }
@@ -355,13 +357,13 @@ const updateLayoutAndRender = () => {
   terminals[state.focusedIndex]?.focus();
   topBox.setContent(getHeaderText());
   screen.render();
-};
+}
 
-const getShownTerminals = () => {
+function getShownTerminals() {
   return terminals.filter((_, i) => state.shownTerminalIndexes.has(i));
-};
+}
 
-const toggleVisibilityForPane = (index: number) => {
+function toggleVisibilityForPane(index: number) {
   if (index < 0 || index >= commands.length) {
     return;
   }
@@ -379,6 +381,4 @@ const toggleVisibilityForPane = (index: number) => {
       }
     }
   }
-};
-
-updateLayoutAndRender();
+}
