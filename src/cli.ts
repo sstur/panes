@@ -2,6 +2,8 @@ import os from 'os';
 import blessed from 'blessed';
 import XTerm from 'blessed-xterm';
 
+import { layoutsByPaneCount } from './support/layouts';
+
 const isMac = os.platform() === 'darwin';
 
 const altKey = isMac ? 'opt' : 'alt';
@@ -44,85 +46,7 @@ if (commands.length === 0) {
   process.exit(1);
 }
 
-type Layout = {
-  left: number | string;
-  top: number | string;
-  width: number | string;
-  height: number | string;
-};
-
-const layoutsByNumWindows: Record<number, Array<Layout>> = {
-  1: [
-    {
-      left: 0,
-      top: 0,
-      width: '100%',
-      height: '100%',
-    },
-  ],
-  2: [
-    {
-      left: 0,
-      top: 0,
-      width: '50%',
-      height: '100%',
-    },
-    {
-      left: '50%',
-      top: 0,
-      width: '50%',
-      height: '100%',
-    },
-  ],
-  3: [
-    {
-      left: 0,
-      top: 0,
-      width: '33%',
-      height: '100%',
-    },
-    {
-      left: '33%',
-      top: 0,
-      width: '33%',
-      height: '100%',
-    },
-    {
-      left: '67%',
-      top: 0,
-      width: '33%',
-      height: '100%',
-    },
-  ],
-  4: [
-    {
-      left: 0,
-      top: 0,
-      width: '50%',
-      height: '50%',
-    },
-    {
-      left: '50%',
-      top: 0,
-      width: '50%',
-      height: '50%',
-    },
-    {
-      left: 0,
-      top: '50%',
-      width: '50%',
-      height: '50%',
-    },
-    {
-      left: '50%',
-      top: '50%',
-      width: '50%',
-      height: '50%',
-    },
-  ],
-};
-
-const maxNumWindows = Object.keys(layoutsByNumWindows).length;
+const maxNumWindows = Object.keys(layoutsByPaneCount).length;
 
 const state = {
   focusedIndex: 0,
@@ -166,7 +90,7 @@ const bottomBox = blessed.box({
   left: 0,
   width: '100%',
   height: 1,
-  content: `Press ^q to quit | ${altKey}-1, ${altKey}-2, … to toggle panels | ${altKey}-left/${altKey}-right to focus next/prev | ^k to clear panel`,
+  content: `Press ^q to quit | ${altKey}-1, ${altKey}-2, … to toggle panes | ${altKey}-left/${altKey}-right to focus next/prev | ^k to clear pane`,
 });
 
 const layoutBox = blessed.box({
@@ -437,7 +361,7 @@ const updateLayoutAndRender = () => {
     state.shownTerminalIndexes.has(i),
   );
   const numTerminals = terminalsToShow.length;
-  const layouts = layoutsByNumWindows[numTerminals] ?? [];
+  const layouts = layoutsByPaneCount[numTerminals] ?? [];
   for (const [layoutIndex, terminal] of terminalsToShow.entries()) {
     const layout = layouts[layoutIndex];
     if (layout) {
