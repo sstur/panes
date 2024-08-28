@@ -6,17 +6,17 @@
     "panes": "./bin/panes"
   },
   "scripts": {
-    "link": "pnpm run unlink && ln -s ../../bin/panes node_modules/.bin/panes",
+    "link": "npm run unlink && ln -s ../../bin/panes node_modules/.bin/panes",
     "unlink": "rm -f node_modules/.bin/panes",
     "typecheck": "tsc --noEmit -p .",
     "lint": "eslint --max-warnings 0 .",
     "unit": "CI=1 vitest --globals --coverage",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "pnpm run '/^(typecheck|lint|format:check|unit)$/'",
+    "test": "npm run typecheck && npm run lint && npm run format:check && npm run unit",
     "clean": "rm -rf dist coverage",
     "copy-files": "cp README.md dist/ && cp -R bin dist/ && lean-package > dist/package.json",
-    "build": "pnpm run clean && rollup -c && pnpm run copy-files && prettier --ignore-path .prettierignore --write dist",
+    "build": "npm run clean && rollup -c && npm run copy-files && prettier --ignore-path .prettierignore --write dist",
     "prepublishOnly": "echo '!! Please use ./publish.sh instead !!' && exit 1"
   },
   "devDependencies": {

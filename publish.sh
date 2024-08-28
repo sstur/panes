@@ -1,4 +1,4 @@
-pnpm run build
+npm run build
 if [ $? -eq 0 ]; then
     cd dist
     npm publish
