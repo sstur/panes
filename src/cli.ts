@@ -4,16 +4,11 @@ import XTerm from 'blessed-xterm';
 
 import { layoutsByPaneCount } from './support/layouts';
 import { parseArgs } from './support/parseArgs';
+import type { KeypressHandler } from './types/KeypressHandler';
 
 const isMac = os.platform() === 'darwin';
 
 const altKey = isMac ? 'opt' : 'alt';
-
-type KeypressHandler<HandlerArgs extends Array<unknown>> = {
-  keys: Array<string>;
-  handler: (...args: HandlerArgs) => void;
-  passThrough: boolean;
-};
 
 const commands = parseArgs(process.argv.slice(2));
 
@@ -208,10 +203,10 @@ const terminalKeypressHandlers: Array<KeypressHandler<[terminal: XTerm]>> = [
 ];
 
 const screenIgnoreKeys = screenKeypressHandlers.flatMap(
-  ({ keys, passThrough }) => (passThrough === false ? keys : []),
+  ({ keys, passThrough }) => (passThrough ? [] : keys),
 );
 const terminalIgnoreKeys = terminalKeypressHandlers.flatMap(
-  ({ keys, passThrough }) => (passThrough === false ? keys : []),
+  ({ keys, passThrough }) => (passThrough ? [] : keys),
 );
 
 const terminals = commands.map(({ title, npmScript }) => {
