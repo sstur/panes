@@ -11,6 +11,7 @@ export default {
     strict: false,
     esModule: false,
   },
+  external: ['os', 'blessed', 'blessed-xterm'],
   plugins: [
     commonjs(),
     nodeResolve(),
