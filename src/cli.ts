@@ -1,12 +1,12 @@
-import os from 'os';
-import blessed from 'blessed';
-import XTerm from 'blessed-xterm';
+import type { XTerm as XTermType } from 'blessed-xterm';
 
+import { blessed } from './support/blessed';
+import { XTerm } from './support/blessed-xterm';
 import { layoutsByPaneCount } from './support/layouts';
 import { parseArgs } from './support/parseArgs';
 import type { KeypressHandler } from './types/KeypressHandler';
 
-const isMac = os.platform() === 'darwin';
+const isMac = process.platform === 'darwin';
 
 const altKey = isMac ? 'opt' : 'alt';
 
@@ -164,43 +164,44 @@ const screenKeypressHandlers = [
   },
 ];
 
-const terminalKeypressHandlers: Array<KeypressHandler<[terminal: XTerm]>> = [
-  {
-    keys: ['pagedown'],
-    handler: (terminal) => {
-      if (!terminal.scrolling) {
-        terminal.scroll(0);
-      }
-      const n = Math.max(1, Math.floor(terminal.height * 0.1));
-      terminal.scroll(+n);
-      if (Math.ceil(terminal.getScrollPerc()) === 100) {
-        terminal.resetScroll();
-      }
+const terminalKeypressHandlers: Array<KeypressHandler<[terminal: XTermType]>> =
+  [
+    {
+      keys: ['pagedown'],
+      handler: (terminal) => {
+        if (!terminal.scrolling) {
+          terminal.scroll(0);
+        }
+        const n = Math.max(1, Math.floor(terminal.height * 0.1));
+        terminal.scroll(+n);
+        if (Math.ceil(terminal.getScrollPerc()) === 100) {
+          terminal.resetScroll();
+        }
+      },
+      passThrough: false,
     },
-    passThrough: false,
-  },
-  {
-    keys: ['pageup'],
-    handler: (terminal) => {
-      if (!terminal.scrolling) {
-        terminal.scroll(0);
-      }
-      const n = Math.max(1, Math.floor(terminal.height * 0.1));
-      terminal.scroll(-n);
-      if (Math.ceil(terminal.getScrollPerc()) === 100) {
-        terminal.resetScroll();
-      }
+    {
+      keys: ['pageup'],
+      handler: (terminal) => {
+        if (!terminal.scrolling) {
+          terminal.scroll(0);
+        }
+        const n = Math.max(1, Math.floor(terminal.height * 0.1));
+        terminal.scroll(-n);
+        if (Math.ceil(terminal.getScrollPerc()) === 100) {
+          terminal.resetScroll();
+        }
+      },
+      passThrough: false,
     },
-    passThrough: false,
-  },
-  {
-    keys: ['C-k'],
-    handler: (terminal) => {
-      terminal.term.clear();
+    {
+      keys: ['C-k'],
+      handler: (terminal) => {
+        terminal.term.clear();
+      },
+      passThrough: false,
     },
-    passThrough: false,
-  },
-];
+  ];
 
 const screenIgnoreKeys = screenKeypressHandlers.flatMap(
   ({ keys, passThrough }) => (passThrough ? [] : keys),
