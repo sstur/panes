@@ -1,6 +1,6 @@
 {
   "name": "panes",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Multiple concurrent dev servers in panes",
   "bin": {
     "panes": "./bin/panes"
