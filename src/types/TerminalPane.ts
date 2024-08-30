@@ -1,7 +1,8 @@
 import type { XTerm } from '../support/blessed-xterm';
+import type { Command } from './Command';
 
 export type TerminalPane = {
-  title: string;
+  command: Command;
   terminal: XTerm;
   isRunning: boolean;
   isVisible: boolean;

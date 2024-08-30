@@ -150,7 +150,7 @@ export class App extends StatefulApp<State> {
     });
 
     const terminalPane: TerminalPane = {
-      title,
+      command,
       terminal,
       isRunning: true,
       isVisible: initiallyVisible,
@@ -169,6 +169,13 @@ export class App extends StatefulApp<State> {
       }
     });
 
+    // If the process in this pane has already exited the user can press r to restart it
+    terminal.key(['r'], () => {
+      if (!terminalPane.isRunning) {
+        this.reLaunchTerminal(terminalPane);
+      }
+    });
+
     terminal.on('exit', (code: number) => {
       terminalPane.isRunning = false;
       terminal.term.writeln('');
@@ -178,6 +185,21 @@ export class App extends StatefulApp<State> {
     });
 
     return terminalPane;
+  }
+
+  reLaunchTerminal(terminalPane: TerminalPane) {
+    const { layoutBox } = this;
+    const { terminalPanes } = this.state;
+    const index = terminalPanes.indexOf(terminalPane);
+    if (index === -1) {
+      return;
+    }
+    // This will remove it from layoutBox and unbind all event listeners
+    terminalPane.terminal.destroy();
+    const newTerminalPane = this.launchTerminal(terminalPane.command);
+    terminalPanes[index] = newTerminalPane;
+    layoutBox.insert(newTerminalPane.terminal, index);
+    this.setState({ terminalPanes });
   }
 
   // This runs before update() to ensure the state is consistent before rendering.
@@ -206,8 +228,8 @@ export class App extends StatefulApp<State> {
   private update() {
     const { terminalPanes, focusedIndex } = this.state;
 
-    const headerTitles = terminalPanes.map(({ title, isVisible }, index) => {
-      const tabName = `(${index + 1}) ${title}`;
+    const headerTitles = terminalPanes.map(({ command, isVisible }, index) => {
+      const tabName = `(${index + 1}) ${command.title}`;
       const style = isVisible ? `{white-fg}{underline}` : `{gray-fg}`;
       return `${style}${tabName}{/}`;
     });
