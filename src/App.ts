@@ -171,6 +171,10 @@ export class App extends StatefulApp<State> {
       screen.key(keys, () => handler(this));
     }
 
+    screen.key(['C-q'], () => {
+      this.exit(0);
+    });
+
     this.screen = screen;
     this.topBox = topBox;
     this.ensureConsistentState();
