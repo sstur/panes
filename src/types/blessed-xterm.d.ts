@@ -1,5 +1,5 @@
 declare module 'blessed-xterm' {
-  import type { Widgets } from 'blessed';
+  import { Widgets } from 'blessed';
   import type { IPty } from 'node-pty';
   import type XTermJS from 'xterm';
 
@@ -32,11 +32,13 @@ declare module 'blessed-xterm' {
     };
   }
 
-  interface XTerm extends Widgets.BoxElement {
+  class XTerm extends Widgets.BoxElement {
     options: XTermOptions;
     term: XTermJS;
     pty: IPty | null;
     scrolling: boolean;
+
+    constructor(options?: XTermOptions);
 
     get width(): number;
     set width(width: number | string);
@@ -50,10 +52,6 @@ declare module 'blessed-xterm' {
     terminate(): void;
     kill(): void;
   }
-
-  type XTermConstructor = new (options?: XTermOptions) => XTerm;
-
-  const XTerm: XTermConstructor;
 
   export = XTerm;
 }
