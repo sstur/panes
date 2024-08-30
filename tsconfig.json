@@ -4,6 +4,9 @@
     "lib": ["es2022"],
     "module": "commonjs",
     "esModuleInterop": true,
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noFallthroughCasesInSwitch": true,
@@ -11,5 +14,6 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "types": ["vitest/globals"]
-  }
+  },
+  "include": ["src/**/*.ts", "src/**/*.js"]
 }

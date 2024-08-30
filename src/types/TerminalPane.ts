@@ -1,4 +1,4 @@
-import type { XTerm } from 'blessed-xterm';
+import type { XTerm } from '../support/blessed-xterm';
 
 export type TerminalPane = {
   title: string;

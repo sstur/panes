@@ -30,6 +30,7 @@
     "@rollup/plugin-typescript": "^8.3.3",
     "@types/blessed": "^0.1.25",
     "@types/node": "^18.19.33",
+    "@types/xterm": "^2.0.3",
     "@vitest/coverage-v8": "^1.6.0",
     "eslint": "^8.57.0",
     "eslint-config-xt": "^1.8.0",

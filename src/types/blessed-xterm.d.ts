@@ -32,7 +32,7 @@ declare module 'blessed-xterm' {
     };
   }
 
-  export interface XTerm extends Widgets.BoxElement {
+  interface XTerm extends Widgets.BoxElement {
     options: XTermOptions;
     term: XTermJS;
     pty: IPty | null;
@@ -44,7 +44,6 @@ declare module 'blessed-xterm' {
     get height(): number;
     set height(height: number | string);
 
-    enableInput(enable: boolean): void;
     injectInput(input: string): void;
     write(output: string): void;
     spawn(shell: string, args: Array<string>, cwd?: string, env?: object): void;
@@ -52,9 +51,9 @@ declare module 'blessed-xterm' {
     kill(): void;
   }
 
-  export type XTermConstructor = new (options?: XTermOptions) => XTerm;
+  type XTermConstructor = new (options?: XTermOptions) => XTerm;
 
   const XTerm: XTermConstructor;
 
-  export default XTerm;
+  export = XTerm;
 }
