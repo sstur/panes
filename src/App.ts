@@ -93,7 +93,10 @@ export class App extends StatefulApp<State> {
     screen.append(bottomBox);
     screen.append(layoutBox);
 
-    for (const [index, { title, npmScript }] of commands.entries()) {
+    for (const [
+      index,
+      { title, npmScript, initiallyVisible },
+    ] of commands.entries()) {
       const terminal = new XTerm({
         shell: 'npm',
         args: ['run', npmScript],
@@ -128,7 +131,7 @@ export class App extends StatefulApp<State> {
         title,
         terminal,
         isRunning: true,
-        isVisible: true,
+        isVisible: initiallyVisible,
       };
       terminalPanes.push(terminalPane);
 
@@ -170,18 +173,29 @@ export class App extends StatefulApp<State> {
 
     this.screen = screen;
     this.topBox = topBox;
+    this.ensureConsistentState();
     this.update();
   }
 
-  // This runs before update() to ensure the state is consistent before rendering
+  // This runs before update() to ensure the state is consistent before rendering.
+  // IMPORTANT: Do not call setState from within here.
   private ensureConsistentState() {
     const { terminalPanes, focusedIndex } = this.state;
+    const visibleTerminalPanes = terminalPanes.filter(
+      ({ isVisible }) => isVisible,
+    );
     const focusedTerminalPane = terminalPanes[focusedIndex];
     if (!focusedTerminalPane || !focusedTerminalPane.isVisible) {
-      const firstVisible = terminalPanes.find(({ isVisible }) => isVisible);
+      const firstVisible = visibleTerminalPanes[0];
       if (firstVisible) {
         // Intentionally not using setState here
         this.state.focusedIndex = terminalPanes.indexOf(firstVisible);
+      }
+    }
+    if (visibleTerminalPanes.length > maxNumWindows) {
+      const panesToHide = visibleTerminalPanes.slice(maxNumWindows);
+      for (const pane of panesToHide) {
+        pane.isVisible = false;
       }
     }
   }
