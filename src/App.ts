@@ -9,6 +9,7 @@ import { blessed } from './support/blessed';
 import { XTerm } from './support/blessed-xterm';
 import { layoutsByPaneCount } from './support/layouts';
 import { parseArgs } from './support/parseArgs';
+import type { Command } from './types/Command';
 import type { TerminalPane } from './types/TerminalPane';
 
 const isMac = process.platform === 'darwin';
@@ -33,6 +34,7 @@ const terminalIgnoreKeys = terminalKeypressHandlers.flatMap(
 export class App extends StatefulApp<State> {
   screen: Widgets.Screen;
   topBox: Widgets.BoxElement;
+  layoutBox: Widgets.BoxElement;
 
   constructor(args: Array<string>) {
     const terminalPanes: Array<TerminalPane> = [];
@@ -93,78 +95,10 @@ export class App extends StatefulApp<State> {
     screen.append(bottomBox);
     screen.append(layoutBox);
 
-    for (const [
-      index,
-      { title, npmScript, initiallyVisible },
-    ] of commands.entries()) {
-      const terminal = new XTerm({
-        shell: 'npm',
-        args: ['run', npmScript],
-        env: process.env,
-        cwd: process.cwd(),
-        cursorType: 'block',
-        border: 'line',
-        scrollback: 1000,
-        // Don't pass through the keystrokes we're handling here
-        ignoreKeys: [...screenIgnoreKeys, ...terminalIgnoreKeys],
-        style: {
-          fg: 'default',
-          bg: 'default',
-          label: { fg: 'grey' },
-          border: { fg: 'gray' },
-          focus: {
-            label: { fg: 'default' },
-            border: { fg: 'default' },
-          },
-          scrolling: {
-            border: { fg: 'red' },
-          },
-        },
-        left: 0,
-        top: 0,
-        width: screen.width,
-        height: screen.height,
-        label: title,
-      });
-
-      const terminalPane: TerminalPane = {
-        title,
-        terminal,
-        isRunning: true,
-        isVisible: initiallyVisible,
-      };
+    for (const command of commands) {
+      const terminalPane = this.launchTerminal(command);
       terminalPanes.push(terminalPane);
-
-      for (const { keys, handler } of terminalKeypressHandlers) {
-        terminal.key(keys, () => {
-          handler(this, terminalPane);
-        });
-      }
-
-      terminal.key('C-c', () => {
-        // If this terminal has already finished and we press ctrl+c again, exit the whole thing
-        if (!terminalPane.isRunning) {
-          this.exit(0);
-        }
-      });
-
-      terminal.on('exit', (code: number) => {
-        terminalPane.isRunning = false;
-        terminal.term.writeln('');
-        terminal.term.writeln('Exited with status ' + code);
-        terminal.term.writeln('Press ctrl+q to quit.');
-        if (this.state.shuttingDown) {
-          return;
-        }
-        this.setState({ shuttingDown: true });
-        for (const [otherIndex, otherTerminal] of terminalPanes.entries()) {
-          if (otherIndex !== index) {
-            otherTerminal.terminal.pty?.kill('SIGTERM');
-          }
-        }
-      });
-
-      layoutBox.append(terminal);
+      layoutBox.append(terminalPane.terminal);
     }
 
     for (const { keys, handler } of screenKeypressHandlers) {
@@ -177,8 +111,73 @@ export class App extends StatefulApp<State> {
 
     this.screen = screen;
     this.topBox = topBox;
+    this.layoutBox = layoutBox;
     this.ensureConsistentState();
     this.update();
+  }
+
+  launchTerminal(command: Command) {
+    const { title, npmScript, initiallyVisible } = command;
+    const terminal = new XTerm({
+      shell: 'npm',
+      args: ['run', npmScript],
+      env: process.env,
+      cwd: process.cwd(),
+      cursorType: 'block',
+      border: 'line',
+      scrollback: 1000,
+      // Don't pass through the keystrokes we're handling here
+      ignoreKeys: [...screenIgnoreKeys, ...terminalIgnoreKeys],
+      style: {
+        fg: 'default',
+        bg: 'default',
+        label: { fg: 'grey' },
+        border: { fg: 'gray' },
+        focus: {
+          label: { fg: 'default' },
+          border: { fg: 'default' },
+        },
+        scrolling: {
+          border: { fg: 'red' },
+        },
+      },
+      label: title,
+      // The dimensions here don't really matter since they will be overwritten by .update()
+      left: 0,
+      top: 0,
+      width: 100,
+      height: 100,
+    });
+
+    const terminalPane: TerminalPane = {
+      title,
+      terminal,
+      isRunning: true,
+      isVisible: initiallyVisible,
+    };
+
+    for (const { keys, handler } of terminalKeypressHandlers) {
+      terminal.key(keys, () => {
+        handler(this, terminalPane);
+      });
+    }
+
+    // If the process in this pane has already exited the user can press q or ctrl+c to exit completely
+    terminal.key(['C-c', 'q'], () => {
+      if (!terminalPane.isRunning) {
+        this.exit(0);
+      }
+    });
+
+    terminal.on('exit', (code: number) => {
+      terminalPane.isRunning = false;
+      terminal.term.writeln('');
+      terminal.term.writeln('Exited with status ' + code);
+      terminal.term.writeln('Press r to restart.');
+      terminal.term.writeln('Press q to quit.');
+    });
+
+    return terminalPane;
   }
 
   // This runs before update() to ensure the state is consistent before rendering.
@@ -289,6 +288,7 @@ export class App extends StatefulApp<State> {
   }
 
   exit(status: number) {
+    // TODO: Attempt to gracefully shut down all processes?
     this.screen.destroy();
     process.exit(status);
   }
