@@ -9,10 +9,11 @@ export default {
     strict: false,
     esModule: false,
   },
-  external: ['os', 'blessed', 'blessed-xterm'],
+  external: ['blessed', 'blessed-xterm'],
   plugins: [
     typescript({
       module: 'esnext',
+      outDir: 'dist',
     }),
     cleanup({
       extensions: ['js', 'ts'],
