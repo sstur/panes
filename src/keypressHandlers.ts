@@ -1,5 +1,9 @@
+import type { Widgets } from 'blessed';
+
 import type { App } from './App';
 import type { TerminalPane } from './types/TerminalPane';
+
+type Key = Widgets.Events.IKeyEventArg;
 
 type KeypressHandler<HandlerArgs extends Array<unknown>> = {
   keys: Array<string>;
@@ -95,16 +99,16 @@ export const screenKeypressHandlers: Array<KeypressHandler<[app: App]>> = [
 ];
 
 export const terminalKeypressHandlers: Array<
-  KeypressHandler<[app: App, terminal: TerminalPane]>
+  KeypressHandler<[app: App, terminal: TerminalPane, key: Key]>
 > = [
   {
-    keys: ['pagedown'],
-    handler: (app, { terminal }) => {
+    keys: ['pageup', 'pagedown'],
+    handler: (app, { terminal }, key) => {
       if (!terminal.scrolling) {
         terminal.scroll(0);
       }
       const n = Math.max(1, Math.floor(terminal.height * 0.1));
-      terminal.scroll(+n);
+      terminal.scroll(key.full === 'pagedown' ? n : -n);
       if (Math.ceil(terminal.getScrollPerc()) === 100) {
         terminal.resetScroll();
       }
@@ -112,13 +116,12 @@ export const terminalKeypressHandlers: Array<
     passThrough: false,
   },
   {
-    keys: ['pageup'],
-    handler: (app, { terminal }) => {
+    keys: ['up', 'down'],
+    handler: (app, { terminal }, key) => {
       if (!terminal.scrolling) {
         terminal.scroll(0);
       }
-      const n = Math.max(1, Math.floor(terminal.height * 0.1));
-      terminal.scroll(-n);
+      terminal.scroll(key.full === 'down' ? 1 : -1);
       if (Math.ceil(terminal.getScrollPerc()) === 100) {
         terminal.resetScroll();
       }

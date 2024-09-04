@@ -157,8 +157,8 @@ export class App extends StatefulApp<State> {
     };
 
     for (const { keys, handler } of terminalKeypressHandlers) {
-      terminal.key(keys, () => {
-        handler(this, terminalPane);
+      terminal.key(keys, (ch, key) => {
+        handler(this, terminalPane, key);
       });
     }
 
@@ -173,13 +173,6 @@ export class App extends StatefulApp<State> {
     terminal.key(['r'], () => {
       if (!terminalPane.isRunning) {
         this.reLaunchTerminal(terminalPane);
-      }
-    });
-
-    terminal.on('keypress', (ch, key) => {
-      if (key.full === 'down' || key.full === 'up') {
-        // @ts-expect-error: _scrollingStart is meant to be private
-        terminal._scrollingStart();
       }
     });
 
