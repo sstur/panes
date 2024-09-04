@@ -1,2 +1,4 @@
 #!/usr/bin/env node
-require('../index.js');
+const { App } = require('../index.js');
+
+App.create(process.argv.slice(2));

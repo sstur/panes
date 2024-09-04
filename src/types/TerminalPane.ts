@@ -1,5 +1,5 @@
-import type { XTerm } from '../support/blessed-xterm';
 import type { Command } from './Command';
+import type { XTerm } from './XTerm';
 
 export type TerminalPane = {
   command: Command;

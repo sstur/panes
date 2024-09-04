@@ -1,3 +1,5 @@
-const XTerm = require('blessed-xterm');
+// TODO: Figure out why this is not typed correctly
+const XTermUntyped = require('blessed-xterm');
 
-export { XTerm };
+/** @type import('../types/XTerm').XTermConstructor */
+export const XTerm = XTermUntyped;

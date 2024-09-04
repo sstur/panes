@@ -5,6 +5,8 @@
   "bin": {
     "panes": "./bin/panes"
   },
+  "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "link": "npm run unlink && ln -s ../../bin/panes node_modules/.bin/panes",
     "unlink": "rm -f node_modules/.bin/panes",
@@ -18,7 +20,7 @@
     "test": "npm run typecheck && npm run lint && npm run format:check && npm run unit",
     "clean": "rm -rf dist coverage",
     "copy-files": "cp README.md dist/ && cp -R bin dist/ && lean-package > dist/package.json",
-    "build": "npm run clean && rollup -c && npm run copy-files && prettier --ignore-path .prettierignore --write dist",
+    "build": "npm run clean && tsc -p tsconfig.build.json && rollup -c && rm -rf dist/dts && npm run copy-files && prettier --ignore-path .prettierignore --write dist",
     "prepublishOnly": "echo '!! Please use ./publish.sh instead !!' && exit 1"
   },
   "dependencies": {
@@ -38,6 +40,7 @@
     "prettier": "^3.2.5",
     "rollup": "^4.21.2",
     "rollup-plugin-cleanup": "^3.2.1",
+    "rollup-plugin-dts": "^6.1.1",
     "typescript": "~5.1.6",
     "vitest": "^1.6.0"
   },
