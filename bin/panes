@@ -1,4 +1,4 @@
 #!/usr/bin/env node
-const { App } = require('../index.js');
+const { run } = require('../index.js');
 
-App.create(process.argv.slice(2));
+run(process.argv.slice(2));

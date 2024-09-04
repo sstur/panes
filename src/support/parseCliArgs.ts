@@ -1,6 +1,7 @@
+import type { AppInitOptions } from '../types/AppInitOptions';
 import type { Command } from '../types/Command';
 
-export function parseArgs(args: Array<string>) {
+export function parseCliArgs(args: Array<string>): AppInitOptions {
   const commands: Array<Command> = [];
   for (let arg of args) {
     const isHidden = arg.endsWith('!');
@@ -14,9 +15,9 @@ export function parseArgs(args: Array<string>) {
     });
     commands.push({
       title: title || npmScript,
-      npmScript,
+      parts: ['npm', 'run', npmScript],
       initiallyVisible: !isHidden,
     });
   }
-  return commands;
+  return { commands };
 }

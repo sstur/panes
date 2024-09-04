@@ -1,5 +1,5 @@
 export type Command = {
   title: string;
-  npmScript: string;
+  parts: Array<string>;
   initiallyVisible: boolean;
 };

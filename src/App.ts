@@ -8,7 +8,7 @@ import { StatefulApp } from './StatefulApp';
 import { blessed } from './support/blessed';
 import { XTerm } from './support/blessed-xterm';
 import { layoutsByPaneCount } from './support/layouts';
-import { parseArgs } from './support/parseArgs';
+import type { AppInitOptions } from './types/AppInitOptions';
 import type { Command } from './types/Command';
 import type { TerminalPane } from './types/TerminalPane';
 
@@ -36,7 +36,9 @@ export class App extends StatefulApp<State> {
   topBox: Widgets.BoxElement;
   layoutBox: Widgets.BoxElement;
 
-  constructor(args: Array<string>) {
+  constructor(init: AppInitOptions) {
+    const { commands } = init;
+
     const terminalPanes: Array<TerminalPane> = [];
     const initialState: State = {
       focusedIndex: 0,
@@ -49,7 +51,6 @@ export class App extends StatefulApp<State> {
       this.update();
     });
 
-    const commands = parseArgs(args);
     if (commands.length === 0) {
       // TODO: Display usage
       // eslint-disable-next-line no-console
@@ -117,10 +118,11 @@ export class App extends StatefulApp<State> {
   }
 
   launchTerminal(command: Command) {
-    const { title, npmScript, initiallyVisible } = command;
+    const { title, parts, initiallyVisible } = command;
+    const [shell, ...args] = parts;
     const terminal = new XTerm({
-      shell: 'npm',
-      args: ['run', npmScript],
+      shell,
+      args,
       env: process.env,
       cwd: process.cwd(),
       cursorType: 'block',
@@ -315,7 +317,7 @@ export class App extends StatefulApp<State> {
     process.exit(status);
   }
 
-  static create(args: Array<string>) {
-    return new App(args);
+  static create(init: AppInitOptions) {
+    return new App(init);
   }
 }
