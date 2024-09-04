@@ -176,6 +176,13 @@ export class App extends StatefulApp<State> {
       }
     });
 
+    terminal.on('keypress', (ch, key) => {
+      if (key.full === 'down' || key.full === 'up') {
+        // @ts-expect-error: _scrollingStart is meant to be private
+        terminal._scrollingStart();
+      }
+    });
+
     terminal.on('exit', (code: number) => {
       terminalPane.isRunning = false;
       terminal.term.writeln('');
