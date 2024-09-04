@@ -11,7 +11,7 @@ export default [
       strict: false,
       esModule: false,
     },
-    external: ['blessed', 'blessed-xterm'],
+    external: ['blessed-xterm', 'blessed', 'fs/promises', 'path'],
     plugins: [
       typescript({
         module: 'esnext',
