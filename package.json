@@ -2,14 +2,10 @@
   "name": "panes",
   "version": "0.1.4",
   "description": "Multiple concurrent dev servers in panes",
-  "bin": {
-    "panes": "./bin/panes"
-  },
+  "bin": "./bin/panes",
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "link": "npm run unlink && ln -s ../../bin/panes node_modules/.bin/panes",
-    "unlink": "rm -f node_modules/.bin/panes",
     "typecheck": "tsc --noEmit -p .",
     "typecheck:watch": "npm run typecheck -- -w",
     "lint": "eslint --max-warnings 0 .",
