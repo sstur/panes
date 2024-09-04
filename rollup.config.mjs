@@ -2,7 +2,7 @@ import typescript from '@rollup/plugin-typescript';
 import cleanup from 'rollup-plugin-cleanup';
 
 export default {
-  input: 'src/cli.ts',
+  input: 'src/index.ts',
   output: {
     file: 'dist/index.js',
     format: 'cjs',
